@@ -1,0 +1,33 @@
+# This is a Databricks asset bundle definition for turbine_pipeline.
+# The Databricks extension requires databricks.yml configuration file.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+
+bundle:
+  name: turbine_pipeline
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-5423610345407755.15.azuredatabricks.net
+
+resources:
+  jobs:
+    turbine-job:
+      name: turbine-job
+      tasks:
+        - task_key: run-pipeline
+          spark_python_task:
+            python_file: src/main.py
+            parameters: ["dbfs:/FileStore/ashok/*.csv"]
+          existing_cluster_id: 1120-080519-dv2esr0a
+      schedule:
+        quartz_cron_expression: "0 0 * * * ?"
+        timezone_id: UTC
+
+  ## Optionally, there could be 'staging' or 'prod' targets here.
+  #
+  # prod:
+  #   workspace:
+  #     host: https://adb-5423610345407755.15.azuredatabricks.net

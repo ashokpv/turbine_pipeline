@@ -1,5 +1,6 @@
 
-
+from spark_session import spark
+from pyspark.sql import SparkSession, functions as F
 def get_latest_max_date(schema_name, table_name, date_column):
     """
     Reads the latest max date from a Unity Catalog cleansed table.
@@ -11,7 +12,7 @@ def get_latest_max_date(schema_name, table_name, date_column):
     Returns:
         str: Latest max date as a string in the format 'YYYY-MM-DD'.
     """
-    full_table_name = f"{schema_name}.{table_name}"
+    full_table_name = f"dtp_ash.{schema_name}.{table_name}"
     table_df = spark.read.format("delta").table(full_table_name)
     max_date = table_df.agg(F.max(date_column)).first()[0]
     return max_date
@@ -37,7 +38,7 @@ def write_delta_table(df, schema_name, table_name, merge_keys=None, mode="append
         merge_keys (List[str], optional): Columns to merge on when mode is "replace". Defaults to None.
         mode (str, optional): Write mode. One of "append", "replace". Defaults to "append".
     """
-    full_table_name = f"{schema_name}.{table_name}"
+    full_table_name = f"dtp_ash.{schema_name}.{table_name}"
     if mode == "append":
         df.write.format("delta").mode("append").saveAsTable(full_table_name)
     elif mode == "replace":
