@@ -6,4 +6,5 @@ if __name__ == "__main__":
         print("Usage: python main.py <input_path>")
         sys.exit(1)
     input_path = sys.argv[1]
+    # input_path = "dbfs:/FileStore/ashok/*.csv"
     run_pipeline(input_path)

@@ -1,0 +1,8 @@
+{
+    "jupyter.interactiveWindow.cellMarker.codeRegex": "^# COMMAND ----------|^# Databricks notebook source|^(#\\s*%%|#\\s*\\<codecell\\>|#\\s*In\\[\\d*?\\]|#\\s*In\\[ \\])",
+    "jupyter.interactiveWindow.cellMarker.default": "# COMMAND ----------",
+    "yaml.schemas": {
+        "dabs:///databricks-asset-bundles.json": "file:///Users/ashok.venkatarao/Downloads/turbine_pipeline/dbx/databricks.yml",
+        "https://json.schemastore.org/databricks-asset-bundles.json": "file:///Users/ashok.venkatarao/Downloads/turbine_pipeline/databricks.yml"
+    }
+}

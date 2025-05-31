@@ -1,11 +1,9 @@
 from pyspark.sql import SparkSession, functions as F, Window
 from datetime import datetime
-from spark_session import spark
-from utils import get_latest_max_date, write_delta_table, mark_missing_entries
+from src.spark_session import spark
+from src.utils import get_latest_max_date, write_delta_table, mark_missing_entries
 
 def clean_data(df):
-        # Filter for only new data
-    
     max_date = get_latest_max_date("silver_turbine", "turbine_cleansed", "date")
     if max_date:
         latest_df = df.filter(F.col("date") > max_date)
@@ -31,6 +29,8 @@ def detect_anomalies(df):
         F.stddev("power_output").alias("std_power")
     )
     df_stats = df.join(stats, on=["turbine_id", "date"], how="left")
+    # Filter out rows where std_power is 0 or null
+    df_stats = df_stats.filter(F.col("std_power").isNotNull() & (F.col("std_power") > 0))
     df_stats = df_stats.withColumn(
         "z_score",
         (F.col("power_output") - F.col("mean_power")) / F.col("std_power")
