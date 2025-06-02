@@ -4,14 +4,17 @@ from datetime import datetime, date
 # Import DatabricksSession from databricks.connect
 from databricks.connect import DatabricksSession
 
-# Import functions from your pipeline module
-from src.pipeline import clean_data, calculate_daily_summary, detect_anomalies
+from src.pipeline import TurbinePipeline 
 
 
 @pytest.fixture(scope="session")
 def spark():
     spark = DatabricksSession.builder.getOrCreate()
     return spark
+
+@pytest.fixture(scope="session")
+def pipeline():
+    return TurbinePipeline()
 
 def test_clean_data_filters_valid_rows(spark, monkeypatch):
     # Mock get_latest_max_date to return a specific date
@@ -25,7 +28,7 @@ def test_clean_data_filters_valid_rows(spark, monkeypatch):
         
     ]
     df = spark.createDataFrame(data)
-    result = clean_data(df)
+    result = pipeline.clean_data(df)
     rows = result.collect()
     # Only the first row should remain
     assert result.count() == 2
@@ -40,7 +43,7 @@ def test_calculate_daily_summary_aggregation(spark):
         Row(turbine_id=2, date=date(2025, 5, 2), power_output=4.0),
     ]
     df = spark.createDataFrame(data)
-    summary = calculate_daily_summary(df).orderBy("turbine_id")
+    summary = pipeline.calculate_daily_summary(df).orderBy("turbine_id")
     rows = summary.collect()
     # There should be two rows, one for each turbine_id
     assert len(rows) == 2
@@ -62,7 +65,7 @@ def test_detect_anomalies_flags_outliers(spark):
         
     ]
     df = spark.createDataFrame(data)
-    anomalies = detect_anomalies(df)
+    anomalies = pipeline.detect_anomalies(df)
     rows = anomalies.collect()
     # Only the outlier (100.0) should be detected
     assert anomalies.count() == 1
