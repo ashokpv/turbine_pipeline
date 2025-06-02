@@ -1,6 +1,8 @@
 
 from spark_session import spark
 from pyspark.sql import SparkSession, functions as F
+
+
 def get_latest_max_date(schema_name, table_name, date_column):
     """
     Reads the latest max date from a Unity Catalog cleansed table.

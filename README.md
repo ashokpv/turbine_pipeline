@@ -48,3 +48,7 @@ This will run `src/main.py` on your specified cluster with the input path:
 ```
 dbfs:/FileStore/ashok/*.csv
 ```
+
+```
+The outputs are stored in output/
+```
