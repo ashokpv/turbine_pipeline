@@ -58,3 +58,9 @@ dbfs:/FileStore/ashok/*.csv
 ```
 The outputs are stored in output/
 ```
+
+
+
+## Unity Catalog Deployment
+
+The infrastructure folder contains scripts to deploy tables.
