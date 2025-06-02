@@ -17,7 +17,7 @@ resources:
           spark_python_task:
             python_file: src/main.py
             parameters: ["dbfs:/FileStore/ashok/*.csv"]
-          existing_cluster_id: 1120-080519-dv2esr0a
+          existing_cluster_id: xxxx-xxxx-dv2esr0a
       schedule:
         quartz_cron_expression: "0 0 * * * ?"
         timezone_id: UTC
