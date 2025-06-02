@@ -1,9 +1,28 @@
-from pyspark.sql import SparkSession, functions as F, Window
+from pyspark.sql import SparkSession, functions as F
+from pyspark.sql.window import Window
 from datetime import datetime
+# Import custom modules
 from spark_session import spark
-from utils import get_latest_max_date, write_delta_table, mark_missing_entries
-
+from utils import (
+    get_latest_max_date,
+    write_delta_table,
+    mark_missing_entries
+)
 def clean_data(df):
+    """
+    Clean the given DataFrame by filtering out rows with invalid data.
+
+    Filters out rows with negative power output, and drops any rows with null
+    values in the turbine_id, power_output, or timestamp columns. Also limits
+    the DataFrame to only include rows with dates later than the latest date
+    written to the silver turbine cleansed table.
+
+    Args:
+        df (DataFrame): DataFrame containing the data to clean.
+
+    Returns:
+        DataFrame: DataFrame with the cleaned data.
+    """
     max_date = get_latest_max_date("silver_turbine", "turbine_cleansed", "date")
     if max_date:
         latest_df = df.filter(F.col("date") > max_date)
@@ -15,7 +34,20 @@ def clean_data(df):
     return latest_df
 
 def calculate_daily_summary(df):
-    # Calendar day summary
+    """
+    Calculates summary statistics for each turbine on each calendar day.
+
+    Args:
+        df (DataFrame): DataFrame containing the data to summarize.
+
+    Returns:
+        DataFrame: DataFrame with the summary statistics, containing the columns:
+            - turbine_id: turbine ID
+            - date: date
+            - min_power: minimum power output for that turbine on that day
+            - max_power: maximum power output for that turbine on that day
+            - avg_power: average power output for that turbine on that day
+    """
     return df.groupBy("turbine_id", "date").agg(
         F.min("power_output").alias("min_power"),
         F.max("power_output").alias("max_power"),
@@ -24,6 +56,22 @@ def calculate_daily_summary(df):
 
 def detect_anomalies(df):
 
+    """
+    Detects anomalies in the given DataFrame.
+
+    Uses the Z-score method to detect power output readings that are more than 2
+    standard deviations away from the mean power output for that turbine on that day.
+
+    Args:
+        df (DataFrame): DataFrame containing the data to detect anomalies in.
+
+    Returns:
+        DataFrame: DataFrame with the original columns and three additional columns:
+            - mean_power: mean power output for that turbine on that day
+            - std_power: standard deviation of power output for that turbine on that day
+            - z_score: Z-score of the power output reading, calculated as
+                (power_output - mean_power) / std_power
+    """
     stats = df.groupBy("turbine_id", "date").agg(
         F.mean("power_output").alias("mean_power"),
         F.stddev("power_output").alias("std_power")
@@ -42,6 +90,17 @@ def detect_anomalies(df):
 
 def run_pipeline(input_path):
 
+    """
+    Runs the pipeline, given an input path for the CSV files.
+
+    Reads the CSV files, cleans the data, calculates daily summary statistics,
+    and detects anomalies. Writes all the intermediate results to Delta tables
+    in the Unity Catalog.
+
+    Args:
+        input_path (str): Path to the CSV files, can be a local path, a DBFS path,
+            or an S3 path.
+    """
     df = spark.read.option("header", True).option("inferSchema", True).csv(input_path)
 
     df = df.withColumn("timestamp", F.to_timestamp("timestamp"))
