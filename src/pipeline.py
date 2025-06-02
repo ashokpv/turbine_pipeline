@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession, functions as F, Window
 from datetime import datetime
-from src.spark_session import spark
-from src.utils import get_latest_max_date, write_delta_table, mark_missing_entries
+from spark_session import spark
+from utils import get_latest_max_date, write_delta_table, mark_missing_entries
 
 def clean_data(df):
     max_date = get_latest_max_date("silver_turbine", "turbine_cleansed", "date")
@@ -47,11 +47,6 @@ def run_pipeline(input_path):
     df = df.withColumn("timestamp", F.to_timestamp("timestamp"))
     df = df.withColumn("date", F.to_date("timestamp"))
     df = df.withColumn("meta_slot_timestamp", F.current_timestamp())
-
-
-    # Data quality: mark missing entries
-    # df_marked = mark_missing_entries(df)
-    # write_delta_table(df_marked, 'silver_turbine', 'missing_data')
 
     cleaned_df = clean_data(df)
     write_delta_table(cleaned_df, 'silver_turbine', 'turbine_cleansed')
