@@ -20,30 +20,35 @@ pytest tests/
 
 ---
 
-## Deploying with DBX
+## Databricks Asset bundles
 
-This project is configured for deployment using [Databricks DBX](https://docs.databricks.com/dev-tools/dbx.html).
+This project is configured for deployment using Databricks Asset bundles
 
-### 1. Install DBX
+### 1. Initialize a bundle using the default Python bundle project template.
 
 ```bash
-pip install dbx
+databricks bundle init
 ```
 
 
-### 3. Deploy Job
+### 3. Validate the project's bundle
 
 ```bash
-dbx deploy --jobs turbine-job --environment dev
+databricks bundle validate
 ```
 
-### 4. Launch the Job
+### 4. Deploy the Job
 
 ```bash
-dbx launch turbine-job --environment dev --parameters='{"input_path": "value1"}'
+databricks bundle deploy -t dev
 ```
 
+### 4. Run the deployed project
+
+```bash
+databricks bundle run -t dev turbine_job
 This will run `src/main.py` on your specified cluster with the input path:
+```
 
 ```
 dbfs:/FileStore/ashok/*.csv
