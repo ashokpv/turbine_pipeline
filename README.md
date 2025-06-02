@@ -47,10 +47,11 @@ databricks bundle deploy -t dev
 
 ```bash
 databricks bundle run -t dev turbine_job
-This will run `src/main.py` on your specified cluster with the input path:
+
 ```
 
 ```
+This will run `src/main.py` on your specified cluster with the input path:
 dbfs:/FileStore/ashok/*.csv
 ```
 
